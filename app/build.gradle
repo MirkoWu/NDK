@@ -1,0 +1,91 @@
+plugins {
+    id 'com.android.application'
+}
+
+def ext = rootProject.ext
+android {
+    compileSdkVersion ext.compileSdkVersion
+    buildToolsVersion "30.0.3"
+
+    defaultConfig {
+        applicationId "com.mirkowu.solibdemo"
+        minSdkVersion ext.minSdkVersion
+        targetSdkVersion ext.targetSdkVersion
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        externalNativeBuild {
+            cmake {
+                cppFlags ''
+            }
+        }
+
+        ndk {
+            //设置支持的SO库架构
+            abiFilters 'armeabi', 'armeabi-v7a', 'arm64-v8a'//, 'x86', 'x86_64'
+        }
+    }
+
+    signingConfigs {
+        release {
+            storeFile file('../keystore.jks')
+            storePassword '123456'
+            keyAlias '123456'
+            keyPassword '123456'
+        }
+    }
+
+    buildTypes {
+        debug {
+//            minifyEnabled true
+//            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+//            debuggable true
+//            jniDebuggable false
+//            zipAlignEnabled true
+        }
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+
+            debuggable false
+            jniDebuggable false
+            zipAlignEnabled true
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+//    externalNativeBuild {
+//        cmake {
+//            path file('src/main/cpp/CMakeLists.txt')
+//            version '3.10.2'
+//        }
+//    }
+    buildFeatures {
+        viewBinding true
+    }
+}
+
+dependencies {
+
+    implementation "androidx.appcompat:appcompat:$ext.appcompat_version"
+    implementation "com.google.android.material:material:$ext.material_version"
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.2'
+    testImplementation 'junit:junit:4.+'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    //是否使用本地lib
+    def useLocalModule = false
+    if (!useLocalModule) {
+        implementation "com.github.mirkowu:ndk:$ext.ndk_version"
+    } else {
+        implementation project(":ndk")
+    }
+    implementation "com.github.mirkowu.mvm:lib_util:$ext.mvm_version" //工具库(必选)
+}
